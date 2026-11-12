@@ -1,0 +1,72 @@
+name: Deploy new-api to Tokyo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+concurrency:
+  group: new-api-tokyo
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'Hao-Monster/MyAPI' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.image.outputs.ref }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Build and publish this commit
+        id: image
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          printf '%s\n' "$GITHUB_SHA" > VERSION
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker buildx build --platform linux/amd64 --push --metadata-file "$RUNNER_TEMP/build.json" \
+            --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" -t "$image:$GITHUB_SHA" .
+          digest=$(jq -er '."containerimage.digest" | select(test("^sha256:[0-9a-f]{64}$"))' "$RUNNER_TEMP/build.json")
+          echo "ref=$image@$digest" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    env:
+      AWS_REGION: ap-northeast-1
+      AWS_ROLE_ARN: ${{ vars.TOKYO_DEPLOY_ROLE_ARN }}
+      IMAGE: ${{ needs.build.outputs.image }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Deploy and check version on new-api-tokyo
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          : "${AWS_ROLE_ARN:?Set TOKYO_DEPLOY_ROLE_ARN to the Tokyo deployment role}"
+          umask 077
+          work=$(mktemp -d)
+          trap 'rm -r -- "$work"' EXIT
+          export AWS_WEB_IDENTITY_TOKEN_FILE="$work/oidc"
+          curl -fsS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -er .value > "$AWS_WEB_IDENTITY_TOKEN_FILE"
+          aws lightsail get-instance-access-details --instance-name new-api-tokyo --protocol ssh --output json > "$work/access"
+          jq -er .accessDetails.privateKey "$work/access" > "$work/key"
+          jq -er .accessDetails.certKey "$work/access" > "$work/key-cert.pub"
+          jq -er '.accessDetails | .ipAddress as $ip | .hostKeys[] | [$ip,.algorithm,.publicKey] | join(" ")' "$work/access" > "$work/hosts"
+          dest=$(jq -er '.accessDetails | select(.instanceName=="new-api-tokyo" and .username=="ubuntu") | .username+"@"+.ipAddress' "$work/access")
+          ssh_opts=(-o BatchMode=yes -o ConnectTimeout=15 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$work/hosts" -i "$work/key")
+          # Keep the short-lived registry token off the command line and the host filesystem.
+          { printf 'export GH_TOKEN=%q\n' "$GH_TOKEN"; cat deploy/tokyo.sh; } | ssh "${ssh_opts[@]}" "$dest" "sudo -n bash -se -- '$IMAGE' '$GITHUB_SHA' '$GITHUB_ACTOR'"
