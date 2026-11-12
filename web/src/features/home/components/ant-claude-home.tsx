@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 
 import { buttonVariants } from '@/components/ui/button'
 
+import { AntClaudeStory } from './ant-claude-story'
+
 import '@/styles/ant-claude.css'
 
 export function AntClaudeHome({
@@ -108,26 +110,17 @@ export function AntClaudeHome({
           </div>
         </section>
 
-        <div className='ant-notes'>
-          <section>
-            <h2>{t('Why I started Ant-Claude')}</h2>
-            <p>
-              {t(
-                'As a Chinese user, I felt singled out when my Claude account was suspended. The 1,400 yuan I paid was never refunded. I started Ant-Claude so that anyone who wants to use Claude has a place to do so.'
-              )}
-            </p>
-          </section>
-          <section>
-            <h2>{t('Claude model providers')}</h2>
-            <ul>
-              <li>Amazon Bedrock</li>
-              <li>Google Cloud Vertex AI</li>
-            </ul>
-            <Link className='ant-text-link' to='/pricing'>
-              {t('View model catalog')} <ArrowRight aria-hidden size={15} />
-            </Link>
-          </section>
-        </div>
+        <AntClaudeStory />
+        <section className='ant-notes'>
+          <h2>{t('Claude model providers')}</h2>
+          <ul>
+            <li>Amazon Bedrock</li>
+            <li>Google Cloud Vertex AI</li>
+          </ul>
+          <Link className='ant-text-link' to='/pricing'>
+            {t('View model catalog')} <ArrowRight aria-hidden size={15} />
+          </Link>
+        </section>
       </div>
     </main>
   )
