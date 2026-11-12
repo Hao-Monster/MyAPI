@@ -114,6 +114,7 @@ func InitEnv() {
 	RelayMaxIdleConnsPerHost = GetEnvOrDefault("RELAY_MAX_IDLE_CONNS_PER_HOST", 100)
 
 	// Initialize string variables with GetEnvOrDefaultString
+	SystemName = GetEnvOrDefaultString("NEW_API_SITE_NAME", SystemName)
 	GeminiSafetySetting = GetEnvOrDefaultString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
 	CohereSafetySetting = GetEnvOrDefaultString("COHERE_SAFETY_SETTING", "NONE")
 

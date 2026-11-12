@@ -29,7 +29,8 @@ if docker container inspect "$name" >/dev/null 2>&1; then
 fi
 docker run -d --name "$name" --label io.myapi.deployment=tokyo --restart unless-stopped \
   --publish 127.0.0.1:3000:3000 --volume new-api-tokyo-data:/data \
-  --log-opt max-size=10m --log-opt max-file=3 --env-file "$envfile" "$image"
+  --log-opt max-size=10m --log-opt max-file=3 --env-file "$envfile" \
+  --env NEW_API_SITE_NAME=Ant-Claude "$image"
 for ((i=0; i<30; i++)); do
   if curl -fsS --max-time 3 http://127.0.0.1:3000/api/status | python3 -c 'import json,sys; s=json.load(sys.stdin); sys.exit(not(s["success"] and s["data"]["version"]==sys.argv[1]))' "$revision"; then
     echo "Tokyo is serving $revision"
