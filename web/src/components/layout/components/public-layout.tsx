@@ -1,3 +1,5 @@
+import { useStatus } from '@/hooks/use-status'
+
 /*
 Copyright (C) 2023-2026 QuantumNous
 
@@ -17,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import type { TopNavLink } from '../types'
+import { Footer } from './footer'
 import { PublicHeader, type PublicHeaderProps } from './public-header'
 
 type PublicLayoutProps = {
@@ -33,6 +36,7 @@ type PublicLayoutProps = {
 }
 
 export function PublicLayout(props: PublicLayoutProps) {
+  const { status } = useStatus()
   return (
     <div className='bg-background text-foreground relative min-h-svh overflow-x-clip'>
       <PublicHeader
@@ -53,6 +57,7 @@ export function PublicLayout(props: PublicLayoutProps) {
       ) : (
         props.children
       )}
+      {status?.system_name === 'Ant-Claude' && <Footer />}
     </div>
   )
 }

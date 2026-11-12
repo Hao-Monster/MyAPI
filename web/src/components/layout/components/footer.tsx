@@ -53,6 +53,16 @@ function FooterLinkItem(props: { link: FooterLink }) {
   const isExternal = props.link.href.startsWith('http')
   const label = t(props.link.text)
 
+  if (props.link.href.startsWith('mailto:')) {
+    return (
+      <a
+        href={props.link.href}
+        className='text-muted-foreground hover:text-foreground text-sm'
+      >
+        {label}
+      </a>
+    )
+  }
   if (isExternal) {
     return (
       <a
@@ -160,6 +170,7 @@ export function Footer(props: FooterProps) {
 
   const displayLogo = systemLogo || props.logo || '/logo.png'
   const displayName = systemName || props.name || 'New API'
+  const isAntClaude = displayName === 'Ant-Claude'
   const isDemoSiteMode = Boolean(demoSiteEnabled)
   const currentYear = new Date().getFullYear()
 
@@ -220,7 +231,33 @@ export function Footer(props: FooterProps) {
     [t]
   )
 
-  const displayColumns = props.columns ?? fallbackColumns
+  const displayColumns =
+    props.columns ??
+    (isAntClaude
+      ? [
+          {
+            title: 'Resources',
+            links: [
+              {
+                text: 'Usage guide',
+                href: '/tutorials/claude-desktop-windows',
+              },
+              { text: 'Model Square', href: '/pricing' },
+              { text: 'Billing & Payment', href: '/billing-support' },
+            ],
+          },
+          {
+            title: 'footer.columns.about.title',
+            links: [
+              { text: 'About', href: '/about' },
+              {
+                text: 'support@holliday.win',
+                href: 'mailto:support@holliday.win',
+              },
+            ],
+          },
+        ]
+      : fallbackColumns)
 
   if (footerHtml) {
     return (
@@ -265,21 +302,28 @@ export function Footer(props: FooterProps) {
               </span>
             </Link>
             <p className='text-muted-foreground/60 mt-3 max-w-[200px] text-xs leading-relaxed'>
-              {t('Powerful API Management Platform')}
+              {isAntClaude
+                ? t('An independent Claude service with transparent pricing.')
+                : t('Powerful API Management Platform')}
             </p>
           </div>
 
           {/* Links columns */}
-          {isDemoSiteMode && (
-            <div className='grid grid-cols-3 gap-8 md:gap-16'>
-              {displayColumns.map((column, index) => (
-                <div key={index}>
+          {(isDemoSiteMode || isAntClaude) && (
+            <div
+              className={cn(
+                'grid gap-8 md:gap-16',
+                isAntClaude ? 'grid-cols-2' : 'grid-cols-3'
+              )}
+            >
+              {displayColumns.map((column) => (
+                <div key={column.title}>
                   <p className='text-muted-foreground/50 mb-3 text-xs font-medium tracking-wider uppercase'>
                     {t(column.title)}
                   </p>
                   <ul className='space-y-2.5'>
-                    {column.links.map((link, linkIndex) => (
-                      <li key={linkIndex}>
+                    {column.links.map((link) => (
+                      <li key={link.href}>
                         <FooterLinkItem link={link} />
                       </li>
                     ))}

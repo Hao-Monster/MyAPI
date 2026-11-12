@@ -127,7 +127,6 @@ export function Home() {
     return (
       <PublicLayout showMainContainer={false}>
         <AntClaudeHome isAuthenticated={isAuthenticated} />
-        <Footer />
       </PublicLayout>
     )
   }

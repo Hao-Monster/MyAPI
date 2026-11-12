@@ -90,7 +90,7 @@ export function useTopNavLinks(): TopNavLink[] {
   if (modules?.docs !== false) {
     if (status?.system_name === 'Ant-Claude') {
       links.push({
-        title: t('Docs'),
+        title: t('Usage guide'),
         href: '/tutorials/claude-desktop-windows',
       })
     } else if (docsLink) {
