@@ -145,6 +145,24 @@
 .ant-rates strong span {
   font-size: 0.52em;
 }
+.ant-topup-tiers {
+  width: 100%;
+  margin-top: 1.5rem;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.ant-topup-tiers :is(th, td) {
+  border-top: 1px solid var(--rule);
+  padding: 0.55rem 0.35rem;
+  text-align: end;
+}
+.ant-topup-tiers th {
+  color: var(--muted-ink);
+  font-size: 0.875rem;
+}
+.ant-topup-tiers :is(th, td):first-child {
+  text-align: start;
+}
 .ant-rates .ant-text-link,
 .ant-notes .ant-text-link {
   margin-top: 0.8rem;

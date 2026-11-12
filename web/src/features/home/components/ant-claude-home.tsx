@@ -8,6 +8,14 @@ import { AntClaudeStory } from './ant-claude-story'
 
 import '@/styles/ant-claude.css'
 
+const topUpTiers = [
+  { credit: 50, feePercent: 9 },
+  { credit: 100, feePercent: 9 },
+  { credit: 200, feePercent: 8 },
+  { credit: 500, feePercent: 8 },
+  { credit: 1000, feePercent: 7 },
+]
+
 export function AntClaudeHome({
   isAuthenticated,
 }: {
@@ -95,7 +103,7 @@ export function AntClaudeHome({
             <div>
               <h3>{t('Fee per top-up')}</h3>
               <strong>
-                6<span>%</span>–10<span>%</span>
+                7<span>%</span>–9<span>%</span>
               </strong>
               <p>
                 {t(
@@ -104,6 +112,24 @@ export function AntClaudeHome({
               </p>
             </div>
           </div>
+          <table className='ant-topup-tiers'>
+            <thead>
+              <tr>
+                <th scope='col'>{t('Topup Amount')} (CNY)</th>
+                <th scope='col'>{t('Fee per top-up')}</th>
+                <th scope='col'>{t('Actual Amount')} (CNY)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topUpTiers.map(({ credit, feePercent }) => (
+                <tr key={credit}>
+                  <td>¥{credit}</td>
+                  <td>{feePercent}%</td>
+                  <td>¥{((credit * (100 + feePercent)) / 100).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </section>
 
         <AntClaudeStory />
