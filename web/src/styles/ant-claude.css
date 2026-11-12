@@ -163,6 +163,13 @@
 .ant-topup-tiers :is(th, td):first-child {
   text-align: start;
 }
+.ant-topup-ranges {
+  border-top: 1px solid var(--rule);
+  padding: 0.85rem 0.35rem 0;
+  color: var(--muted-ink);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
 .ant-rates .ant-text-link,
 .ant-notes .ant-text-link {
   margin-top: 0.8rem;

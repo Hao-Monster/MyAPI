@@ -115,7 +115,10 @@ export function AntClaudeHome({
               </p>
             </div>
           </div>
-          <table className='ant-topup-tiers'>
+          <table
+            className='ant-topup-tiers'
+            aria-describedby='ant-topup-ranges'
+          >
             <thead>
               <tr>
                 <th scope='col'>{t('Topup Amount')} (CNY)</th>
@@ -147,6 +150,11 @@ export function AntClaudeHome({
               })}
             </tbody>
           </table>
+          <p id='ant-topup-ranges' className='ant-topup-ranges'>
+            {t(
+              'Top-up fees are 9% from ¥50 through ¥100, 8% above ¥100 and below ¥1,000, and 7% from ¥1,000 upward.'
+            )}
+          </p>
         </section>
 
         <AntClaudeStory />
