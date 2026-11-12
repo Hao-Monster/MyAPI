@@ -115,6 +115,7 @@ func InitEnv() {
 
 	// Initialize string variables with GetEnvOrDefaultString
 	SystemName = GetEnvOrDefaultString("NEW_API_SITE_NAME", SystemName)
+	Logo = GetEnvOrDefaultString("NEW_API_SITE_LOGO", Logo)
 	GeminiSafetySetting = GetEnvOrDefaultString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
 	CohereSafetySetting = GetEnvOrDefaultString("COHERE_SAFETY_SETTING", "NONE")
 

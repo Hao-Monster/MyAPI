@@ -36,25 +36,13 @@ export function AntClaudeHome({
               </a>
             </div>
           </div>
-          <figure className='ant-plate'>
-            <div className='ant-disc' aria-hidden='true' />
-            <img
-              src='/paraponera-clavata.png'
-              alt=''
-              width='591'
-              height='1024'
-            />
-            <figcaption>
-              <i lang='la'>Paraponera clavata</i>
-              <a
-                href='https://www.phylopic.org/images/565a2de1-d040-4424-b995-5ed58cdf7c96'
-                target='_blank'
-                rel='noreferrer'
-              >
-                PhyloPic ↗
-              </a>
-            </figcaption>
-          </figure>
+          <img
+            className='ant-hero-art'
+            src='/ant-claude-swords.jpg'
+            alt='Ant-Claude'
+            width='960'
+            height='960'
+          />
         </section>
 
         <section id='pricing-policy' className='ant-policy'>

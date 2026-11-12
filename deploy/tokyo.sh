@@ -30,7 +30,7 @@ fi
 docker run -d --name "$name" --label io.myapi.deployment=tokyo --restart unless-stopped \
   --publish 127.0.0.1:3000:3000 --volume new-api-tokyo-data:/data \
   --log-opt max-size=10m --log-opt max-file=3 --env-file "$envfile" \
-  --env NEW_API_SITE_NAME=Ant-Claude "$image"
+  --env NEW_API_SITE_NAME=Ant-Claude --env NEW_API_SITE_LOGO=/ant-claude-swords-icon.png "$image"
 for ((i=0; i<30; i++)); do
   if curl -fsS --max-time 3 http://127.0.0.1:3000/api/status | python3 -c 'import json,sys; s=json.load(sys.stdin); sys.exit(not(s["success"] and s["data"]["version"]==sys.argv[1]))' "$revision"; then
     echo "Tokyo is serving $revision"
@@ -80,6 +80,8 @@ caddy_image='caddy:2-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe23
 # Keep certificates across releases. Host networking reaches the loopback-only app.
 cat > /var/lib/new-api-tokyo/Caddyfile <<'CADDY'
 holliday.win {
+    @defaultIcons path /logo.png /favicon.ico
+    redir @defaultIcons /ant-claude-swords-icon.png 302
     reverse_proxy 127.0.0.1:3000
 }
 CADDY
