@@ -65,7 +65,11 @@ export function AntClaudeHome({
               'We pledge to serve Claude exclusively through Amazon Bedrock or Google Cloud Vertex AI. We will never pass off another model or provider as the one you chose.'
             )}
           </p>
-          <p>{t("We never collect, store or sell any user's usage data.")}</p>
+          <p>
+            {t(
+              "Our service is completely different from other low-cost API gateways. We never collect, store or sell any user's usage data. We match official prices and charge only a top-up service fee to run this site."
+            )}
+          </p>
           <p>
             {t(
               'We welcome every form of scrutiny of our model sources and how we handle user data.'
