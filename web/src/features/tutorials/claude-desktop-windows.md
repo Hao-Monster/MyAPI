@@ -46,3 +46,13 @@
 | 客户端有回复，站内没有对应记录 | 核对启动时选择的部署模式、网关域名和当前登录的 Ant-Claude 账户。 |
 
 停用这台设备时，在站内禁用它的专用令牌即可。更换令牌时，也要在客户端的网关设置中更新密钥并重新启动。
+
+## 4. Windows 客户端能选 Gemini 4 Carbon 吗？
+
+在 Windows 版 Claude Desktop **2.19675.1** 的 Gateway 模式下，Code 页无法直接选择 `google/gemini-4-carbon`。实测把这个完整 ID 加到 `inferenceModels`，保留 Opus 和 Fable，然后完全退出并重新启动客户端。展开新会话输入框右下角的模型菜单后，仍然只有 Opus 和 Fable。测试停在选择模型这一步，没有发出 Carbon 对话请求。
+
+如果你遇到同样的情况，先看模型菜单。模型没有出现时，扩大令牌权限不能让它出现在菜单里。如果模型可以选，但发送消息后提示无权调用，再到「API 密钥 → 编辑 → 高级设置 → 模型限制」核对该令牌允许的模型。
+
+要在 Ant-Claude 使用 Carbon，可在支持 OpenAI 兼容接口的客户端中选择自定义服务商，Base URL 填 `https://holliday.win/v1`，模型 ID 填 `google/gemini-4-carbon`，并使用已放行 Carbon 的个人 API 密钥。发送一条短消息后，在[使用日志](https://holliday.win/usage-logs)核对模型名。这套填写方式用于 OpenAI 兼容客户端；Claude Desktop 的 Gateway 地址仍按第 2 节填写。
+
+升级 Claude Desktop 后，可以用同一方法复测。只有在客户端能选中 Carbon、收到回复，且站内同一请求的日志显示 `google/gemini-4-carbon` 时，才算验证了该版本的桌面接入。
