@@ -55,6 +55,7 @@ jobs:
       - name: Deploy and check version on new-api-tokyo
         env:
           GH_TOKEN: ${{ github.token }}
+          MIGRATE_SSH: ${{ vars.TOKYO_SSH_MIGRATION }}
         run: |
           : "${AWS_ROLE_ARN:?Set TOKYO_DEPLOY_ROLE_ARN to the Tokyo deployment role}"
           umask 077
@@ -67,6 +68,31 @@ jobs:
           jq -er .accessDetails.certKey "$work/access" > "$work/key-cert.pub"
           jq -er '.accessDetails | .ipAddress as $ip | .hostKeys[] | [$ip,.algorithm,.publicKey] | join(" ")' "$work/access" > "$work/hosts"
           dest=$(jq -er '.accessDetails | select(.instanceName=="new-api-tokyo" and .username=="ubuntu") | .username+"@"+.ipAddress' "$work/access")
-          ssh_opts=(-o BatchMode=yes -o ConnectTimeout=15 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$work/hosts" -i "$work/key")
+          ip=$(jq -er .accessDetails.ipAddress "$work/access")
+          ssh_opts=(-o BatchMode=yes -o ConnectTimeout=10 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o HostKeyAlias="$ip" -o UserKnownHostsFile="$work/hosts" -i "$work/key")
+          ssh_new() { ssh -p 28422 "${ssh_opts[@]}" "$dest" "$@"; }
+          if [[ $MIGRATE_SSH == enabled ]] && ! ssh_new 'test -f /run/ant-claude-ssh-final && ! ss -Hltn "sport = :22" | grep -q .'; then
+            # Stage both ports using the legacy connection. systemd keeps the change
+            # running even if switching listeners drops the initiating SSH session.
+            ssh -p 22 "${ssh_opts[@]}" "$dest" 'sudo -n install -m 0700 /dev/null /run/ant-claude-sshd.sh && sudo -n tee /run/ant-claude-sshd.sh >/dev/null' < deploy/tokyo-sshd.sh
+            ssh -p 22 "${ssh_opts[@]}" "$dest" 'sudo -n systemd-run --quiet --collect --unit=ant-claude-stage-ssh /bin/bash /run/ant-claude-sshd.sh stage'
+            for attempt in {1..15}; do
+              if ssh_new 'sudo -n true'; then break; fi
+              sleep 2
+            done
+            if ! ssh_new 'sudo -n true'; then
+              ssh -p 22 "${ssh_opts[@]}" "$dest" 'sudo -n journalctl -u ant-claude-stage-ssh -n 20 --no-pager'
+              exit 1
+            fi
+            echo 'Independent SSH login on TCP 28422 passed with the Lightsail host key.'
+            ssh_new 'sudo -n systemd-run --quiet --unit=ant-claude-restore-ssh --on-active=3min /bin/bash /run/ant-claude-sshd.sh stage && sudo -n systemd-run --quiet --collect /bin/bash /run/ant-claude-sshd.sh finish'
+            for attempt in {1..20}; do
+              if ssh_new 'test -f /run/ant-claude-ssh-final && ! ss -Hltn "sport = :22" | grep -q .'; then break; fi
+              sleep 2
+            done
+            ssh_new 'test -f /run/ant-claude-ssh-final && ! ss -Hltn "sport = :22" | grep -q . && sudo -n systemctl stop ant-claude-restore-ssh.timer'
+            echo 'Fresh high-port authentication passed after retiring port 22.'
+          fi
           # Keep the short-lived registry token off the command line and the host filesystem.
-          { printf 'export GH_TOKEN=%q\n' "$GH_TOKEN"; cat deploy/tokyo.sh; } | ssh "${ssh_opts[@]}" "$dest" "sudo -n bash -se -- '$IMAGE' '$GITHUB_SHA' '$GITHUB_ACTOR'"
+          { printf 'export GH_TOKEN=%q\n' "$GH_TOKEN"; cat deploy/tokyo.sh; } | ssh_new "sudo -n bash -se -- '$IMAGE' '$GITHUB_SHA' '$GITHUB_ACTOR'"
+          curl -fsS --retry 5 --retry-all-errors --max-time 10 --resolve "holliday.win:443:$ip" https://holliday.win/api/status | jq -e --arg rev "$GITHUB_SHA" '.success and .data.version == $rev'

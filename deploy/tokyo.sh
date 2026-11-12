@@ -79,7 +79,18 @@ proxy=new-api-tokyo-https
 caddy_image='caddy:2-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9'
 # Keep certificates across releases. Host networking reaches the loopback-only app.
 cat > /var/lib/new-api-tokyo/Caddyfile <<'CADDY'
+{
+    auto_https disable_redirects
+    servers {
+        protocols h1 h2
+    }
+}
 holliday.win {
+    tls {
+        issuer acme {
+            disable_http_challenge
+        }
+    }
     @defaultIcons path /logo.png /favicon.ico
     redir @defaultIcons /ant-claude-swords-icon.png 302
     reverse_proxy 127.0.0.1:3000
@@ -94,4 +105,9 @@ else
   test "$(docker inspect --format '{{ index .Config.Labels "io.myapi.deployment" }}' "$proxy")" = tokyo
   docker start "$proxy"
   docker exec "$proxy" caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+fi
+docker exec "$proxy" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+if ss -Hltn 'sport = :80' | grep -q .; then
+  echo 'Unexpected HTTP listener after enabling HTTPS-only mode' >&2
+  exit 1
 fi
