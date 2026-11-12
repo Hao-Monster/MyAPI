@@ -33,6 +33,7 @@ import { Route as OauthProviderRouteImport } from './routes/oauth/$provider'
 import { Route as PricingIndexRouteImport } from './routes/pricing/index'
 import { Route as RankingsIndexRouteImport } from './routes/rankings/index'
 import { Route as SetupIndexRouteImport } from './routes/setup/index'
+import { Route as TutorialsClaudeDesktopWindowsRouteImport } from './routes/tutorials/claude-desktop-windows'
 import { Route as authUserResetRouteImport } from './routes/(auth)/user/reset'
 import { Route as AuthenticatedChannelsIndexRouteImport } from './routes/_authenticated/channels/index'
 import { Route as AuthenticatedChatChatIdRouteImport } from './routes/_authenticated/chat/$chatId'
@@ -187,6 +188,12 @@ const SetupIndexRoute = SetupIndexRouteImport.update({
   path: '/setup/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TutorialsClaudeDesktopWindowsRoute =
+  TutorialsClaudeDesktopWindowsRouteImport.update({
+    id: '/tutorials/claude-desktop-windows',
+    path: '/tutorials/claude-desktop-windows',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const authUserResetRoute = authUserResetRouteImport.update({
   id: '/user/reset',
   path: '/user/reset',
@@ -406,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503Route
   '/chat2link': typeof AuthenticatedChat2linkRoute
   '/oauth/$provider': typeof OauthProviderRoute
+  '/tutorials/claude-desktop-windows': typeof TutorialsClaudeDesktopWindowsRoute
   '/about/': typeof AboutIndexRoute
   '/pricing/': typeof PricingIndexRoute
   '/rankings/': typeof RankingsIndexRoute
@@ -463,6 +471,7 @@ export interface FileRoutesByTo {
   '/503': typeof errors503Route
   '/chat2link': typeof AuthenticatedChat2linkRoute
   '/oauth/$provider': typeof OauthProviderRoute
+  '/tutorials/claude-desktop-windows': typeof TutorialsClaudeDesktopWindowsRoute
   '/about': typeof AboutIndexRoute
   '/pricing': typeof PricingIndexRoute
   '/rankings': typeof RankingsIndexRoute
@@ -524,6 +533,7 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503Route
   '/_authenticated/chat2link': typeof AuthenticatedChat2linkRoute
   '/oauth/$provider': typeof OauthProviderRoute
+  '/tutorials/claude-desktop-windows': typeof TutorialsClaudeDesktopWindowsRoute
   '/about/': typeof AboutIndexRoute
   '/pricing/': typeof PricingIndexRoute
   '/rankings/': typeof RankingsIndexRoute
@@ -584,6 +594,7 @@ export interface FileRouteTypes {
     | '/503'
     | '/chat2link'
     | '/oauth/$provider'
+    | '/tutorials/claude-desktop-windows'
     | '/about/'
     | '/pricing/'
     | '/rankings/'
@@ -641,6 +652,7 @@ export interface FileRouteTypes {
     | '/503'
     | '/chat2link'
     | '/oauth/$provider'
+    | '/tutorials/claude-desktop-windows'
     | '/about'
     | '/pricing'
     | '/rankings'
@@ -701,6 +713,7 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/_authenticated/chat2link'
     | '/oauth/$provider'
+    | '/tutorials/claude-desktop-windows'
     | '/about/'
     | '/pricing/'
     | '/rankings/'
@@ -753,6 +766,7 @@ export interface RootRouteChildren {
   errors500Route: typeof errors500Route
   errors503Route: typeof errors503Route
   OauthProviderRoute: typeof OauthProviderRoute
+  TutorialsClaudeDesktopWindowsRoute: typeof TutorialsClaudeDesktopWindowsRoute
   AboutIndexRoute: typeof AboutIndexRoute
   PricingIndexRoute: typeof PricingIndexRoute
   RankingsIndexRoute: typeof RankingsIndexRoute
@@ -928,6 +942,13 @@ declare module '@tanstack/react-router' {
       path: '/setup'
       fullPath: '/setup/'
       preLoaderRoute: typeof SetupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tutorials/claude-desktop-windows': {
+      id: '/tutorials/claude-desktop-windows'
+      path: '/tutorials/claude-desktop-windows'
+      fullPath: '/tutorials/claude-desktop-windows'
+      preLoaderRoute: typeof TutorialsClaudeDesktopWindowsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/user/reset': {
@@ -1315,6 +1336,7 @@ const rootRouteChildren: RootRouteChildren = {
   errors500Route: errors500Route,
   errors503Route: errors503Route,
   OauthProviderRoute: OauthProviderRoute,
+  TutorialsClaudeDesktopWindowsRoute: TutorialsClaudeDesktopWindowsRoute,
   AboutIndexRoute: AboutIndexRoute,
   PricingIndexRoute: PricingIndexRoute,
   RankingsIndexRoute: RankingsIndexRoute,
