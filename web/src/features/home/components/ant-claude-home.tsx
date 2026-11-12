@@ -62,7 +62,7 @@ export function AntClaudeHome({
           <h2 id='ant-pledge-title'>{t('Our pledge')}</h2>
           <p className='ant-pledge-lead'>
             {t(
-              'We pledge to serve Claude exclusively through Amazon Bedrock or Google Cloud Vertex AI. We will never pass off another model or provider as the one you chose.'
+              'We pledge to serve Claude exclusively through Anthropic, Amazon Bedrock or Google Cloud Vertex AI. We will never pass off another model or provider as the one you chose.'
             )}
           </p>
           <p>
@@ -165,6 +165,7 @@ export function AntClaudeHome({
         <section className='ant-notes'>
           <h2>{t('Claude model providers')}</h2>
           <ul>
+            <li>{t('Anthropic (official)')}</li>
             <li>Amazon Bedrock</li>
             <li>Google Cloud Vertex AI</li>
           </ul>
