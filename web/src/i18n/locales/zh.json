@@ -1758,6 +1758,7 @@
     "Error Message (required)": "错误消息（必填）",
     "Error parsing response data": "解析响应数据失败",
     "Error Type (optional)": "错误类型（可选）",
+    "Estimated amount available for operations after provider and payment fees": "扣除上游和收款手续费后，预计可用于运维",
     "Estimated cost": "预计成本",
     "Estimated quota cost": "估算配额费用",
     "Evaluate fields from the provider user info response. Conditions and nested groups use and/or logic.": "根据提供商返回的用户信息字段执行策略判断。条件和嵌套分组支持 and/or 逻辑。",

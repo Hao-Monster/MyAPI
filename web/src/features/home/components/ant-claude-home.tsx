@@ -16,6 +16,9 @@ const topUpTiers = [
   { credit: 1000, feePercent: 7 },
 ]
 
+const estimatedUpstreamFeeRate = 0.055
+const estimatedPaymentFeeRate = 0.006
+
 export function AntClaudeHome({
   isAuthenticated,
 }: {
@@ -118,16 +121,30 @@ export function AntClaudeHome({
                 <th scope='col'>{t('Topup Amount')} (CNY)</th>
                 <th scope='col'>{t('Fee per top-up')}</th>
                 <th scope='col'>{t('Actual Amount')} (CNY)</th>
+                <th scope='col'>
+                  {t(
+                    'Estimated amount available for operations after provider and payment fees'
+                  )}
+                </th>
               </tr>
             </thead>
             <tbody>
-              {topUpTiers.map(({ credit, feePercent }) => (
-                <tr key={credit}>
-                  <td>¥{credit}</td>
-                  <td>{feePercent}%</td>
-                  <td>¥{((credit * (100 + feePercent)) / 100).toFixed(2)}</td>
-                </tr>
-              ))}
+              {topUpTiers.map(({ credit, feePercent }) => {
+                const serviceFee = (credit * feePercent) / 100
+                const total = credit + serviceFee
+                const available =
+                  serviceFee -
+                  credit * estimatedUpstreamFeeRate -
+                  total * estimatedPaymentFeeRate
+                return (
+                  <tr key={credit}>
+                    <td>¥{credit}</td>
+                    <td>{feePercent}%</td>
+                    <td>¥{total.toFixed(2)}</td>
+                    <td>¥{available.toFixed(2)}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </section>

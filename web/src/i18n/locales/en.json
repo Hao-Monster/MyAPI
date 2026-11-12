@@ -1758,6 +1758,7 @@
     "Error Message (required)": "Error Message (required)",
     "Error parsing response data": "Error parsing response data",
     "Error Type (optional)": "Error Type (optional)",
+    "Estimated amount available for operations after provider and payment fees": "Estimated amount available for operations after provider and payment fees",
     "Estimated cost": "Estimated cost",
     "Estimated quota cost": "Estimated quota cost",
     "Evaluate fields from the provider user info response. Conditions and nested groups use and/or logic.": "Evaluate fields from the provider user info response. Conditions and nested groups use and/or logic.",
