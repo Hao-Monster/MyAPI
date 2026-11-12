@@ -45,6 +45,32 @@ export function AntClaudeHome({
           />
         </section>
 
+        <section className='ant-pledge' aria-labelledby='ant-pledge-title'>
+          <h2 id='ant-pledge-title'>{t('Our pledge')}</h2>
+          <p className='ant-pledge-lead'>
+            {t(
+              'We pledge to serve Claude exclusively through Amazon Bedrock or Google Cloud Vertex AI. We will never pass off another model or provider as the one you chose.'
+            )}
+          </p>
+          <p>
+            {t(
+              'We will never sell user data. We commit to collecting and storing only what is necessary to run the service, including account, usage, billing and security records.'
+            )}
+          </p>
+          <p>
+            {t(
+              'We welcome every form of scrutiny of our model sources and how we handle user data.'
+            )}{' '}
+            <a
+              className='ant-text-link'
+              href='https://github.com/Hao-Monster/MyAPI'
+            >
+              {t('Inspect the source code')}{' '}
+              <ArrowUpRight aria-hidden size={15} />
+            </a>
+          </p>
+        </section>
+
         <section id='pricing-policy' className='ant-policy'>
           <h2>{t('Our pricing policy')}</h2>
           <div className='ant-rates'>
@@ -92,7 +118,7 @@ export function AntClaudeHome({
             </p>
           </section>
           <section>
-            <h2>{t('Planned Claude providers')}</h2>
+            <h2>{t('Claude model providers')}</h2>
             <ul>
               <li>Amazon Bedrock</li>
               <li>Google Cloud Vertex AI</li>

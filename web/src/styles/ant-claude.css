@@ -95,6 +95,25 @@
   border: 1px solid #87755b66;
   border-radius: 0.4rem;
 }
+.ant-pledge {
+  margin-bottom: 2rem;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  border-inline-start: 0.35rem solid var(--rust);
+  background: color-mix(in srgb, var(--rust) 8%, var(--paper));
+}
+.ant-pledge h2 {
+  color: var(--rust);
+  font-weight: 700;
+}
+.ant-pledge p {
+  max-width: 78ch;
+  margin-block-start: 0.75rem;
+  line-height: 1.8;
+}
+.ant-pledge-lead {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
 .ant-policy {
   border-block: 1px solid var(--rule);
   padding: 2rem 0 2.5rem;
