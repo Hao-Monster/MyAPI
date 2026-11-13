@@ -1765,6 +1765,7 @@
     "Evaluate fields from the provider user info response. Conditions and nested groups use and/or logic.": "Evaluate fields from the provider user info response. Conditions and nested groups use and/or logic.",
     "Every group name in the pricing table can be used in two places: on a user (the user group, assigned by admins) and on a token (the token group, chosen when creating the token). Same name pool, two different jobs.": "Every group name in the pricing table can be used in two places: on a user (the user group, assigned by admins) and on a token (the token group, chosen when creating the token). Same name pool, two different jobs.",
     "Every other device will lose access immediately. This device will remain signed in.": "Every other device will lose access immediately. This device will remain signed in.",
+    "Everyone has the right to use AI regardless of their country or region.": "Everyone has the right to use AI regardless of their country or region.",
     "Everyone should have the right to use AI.": "Everyone should have the right to use AI.",
     "Everything configured for this group, in one place.": "Everything configured for this group, in one place.",
     "Exact": "Exact",

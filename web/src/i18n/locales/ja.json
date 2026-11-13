@@ -1765,6 +1765,7 @@
     "Evaluate fields from the provider user info response. Conditions and nested groups use and/or logic.": "プロバイダーのユーザー情報レスポンスのフィールドを評価します。条件とネストしたグループでは and/or ロジックを使用します。",
     "Every group name in the pricing table can be used in two places: on a user (the user group, assigned by admins) and on a token (the token group, chosen when creating the token). Same name pool, two different jobs.": "料金表の各グループ名は2つの場所で使えます。ユーザー側（ユーザーグループ、管理者が割り当て）とトークン側（トークングループ、トークン作成時に選択）です。同じ名前プールで、役割は2つです。",
     "Every other device will lose access immediately. This device will remain signed in.": "他のすべてのデバイスは直ちにアクセスできなくなります。このデバイスはログイン状態を維持します。",
+    "Everyone has the right to use AI regardless of their country or region.": "どの国や地域の人にも、AI を利用する権利があります。",
     "Everyone should have the right to use AI.": "誰にでも、AI を使う権利がある。",
     "Everything configured for this group, in one place.": "このグループのすべての設定を一か所で確認できます。",
     "Exact": "完全一致",

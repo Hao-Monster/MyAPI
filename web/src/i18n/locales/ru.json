@@ -1765,6 +1765,7 @@
     "Evaluate fields from the provider user info response. Conditions and nested groups use and/or logic.": "Проверяет поля ответа с данными пользователя от провайдера. Условия и вложенные группы используют логику and/or.",
     "Every group name in the pricing table can be used in two places: on a user (the user group, assigned by admins) and on a token (the token group, chosen when creating the token). Same name pool, two different jobs.": "Каждое имя группы из таблицы тарифов используется в двух местах: у пользователя (группа пользователя, назначается администратором) и у токена (группа токена, выбирается при создании). Один набор имён — две разные роли.",
     "Every other device will lose access immediately. This device will remain signed in.": "Все остальные устройства немедленно потеряют доступ. Это устройство останется в системе.",
+    "Everyone has the right to use AI regardless of their country or region.": "Каждый имеет право пользоваться ИИ независимо от страны или региона.",
     "Everyone should have the right to use AI.": "Каждый должен иметь право пользоваться ИИ.",
     "Everything configured for this group, in one place.": "Все настройки этой группы в одном месте.",
     "Exact": "Точное",

@@ -34,7 +34,9 @@ export function AntClaudeHome({
             <p className='ant-wordmark'>Ant-Claude</p>
             <h1>{t('Everyone should have the right to use AI.')}</h1>
             <p className='ant-intro'>
-              {t('An independent Claude service with transparent pricing.')}
+              {t(
+                'Everyone has the right to use AI regardless of their country or region.'
+              )}
             </p>
             <div className='ant-actions'>
               <Link
