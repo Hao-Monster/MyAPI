@@ -74,19 +74,19 @@ Windows 版 Claude Desktop 2.19675.1 可以通过 CC Switch 4.0.4 把 **Gemini 4
 
 如果使用普通 OpenAI 兼容客户端，可直接填写上表的上游地址、个人令牌和请求模型。
 
-## 5. 在同一个模型菜单中显示 Claude 和 Gemini
+## 5. 保留 Claude 原模型，同时在菜单中使用 Gemini
 
-沿用第 4 节的 Ant-Claude 服务商配置，可以把两款 Claude 和两款 Gemini 放进同一个菜单。CC Switch 4.0.4 的桌面配置提供四个角色，每个角色可以指定一个菜单显示名和一个实际请求模型。这四个位置可按需分配；要展示本站全部六款模型，单份配置的位置不够。[CC Switch 4.0.4 角色配置](https://github.com/farion1231/cc-switch/blob/v4.0.4/src/components/providers/forms/ClaudeDesktopProviderForm.tsx#L193-L215)
+CC Switch 4.0.4 的 Claude Desktop 模型映射有四个位置，每个位置只对应一个实际请求模型。如果把 Sonnet 映射到 Carbon，当前菜单就少了 Claude Sonnet；把 Haiku 映射到 Argon，同样会少了 Claude Haiku。要随时能用到本站六款模型，可以保存两份服务商配置，每次启用一份。[CC Switch 4.0.4 角色配置](https://github.com/farion1231/cc-switch/blob/v4.0.4/src/components/providers/forms/ClaudeDesktopProviderForm.tsx#L193-L215)
 
-1. 在 Ant-Claude 编辑桌面端使用的个人令牌，进入「高级设置 → 模型限制」，勾选下表右栏的四个模型并保存。[打开 API 密钥页](https://holliday.win/keys)
-2. 在 CC Switch 的 **Claude Desktop** 面板编辑第 4 节的服务商，开启「需要模型映射」，逐行填写下表。四行都要填完整，留空的角色可能沿用其他行的模型。
+1. 在 Ant-Claude 编辑桌面端个人令牌。如果两份配置共用一枚令牌，在「高级设置 → 模型限制」中勾选下表涉及的六个模型并保存。[打开 API 密钥页](https://holliday.win/keys)
+2. 在 CC Switch 的 **Claude Desktop** 面板分别添加「Ant-Claude · 全部 Claude」和「Ant-Claude · Claude 与 Gemini」。两份都按第 4 节填写接口格式、上游地址和个人令牌，开启「需要模型映射」。在每个角色里，把模型名填入「菜单显示名」，把对应的完整 ID 填入「请求模型」。
 
-| CC Switch 角色 | 菜单显示名 | 实际请求模型 |
+| CC Switch 角色 | 全部 Claude（显示名和请求模型） | Claude 与 Gemini（显示名和请求模型） |
 | --- | --- | --- |
-| Sonnet | Gemini 4 Carbon | `google/gemini-4-carbon` |
-| Opus | Claude Opus 5.5 | `anthropic/claude-opus-5.5` |
-| Fable | Claude Fable 5.2 | `anthropic/claude-fable-5.2` |
-| Haiku | Gemini 4 Argon | `google/gemini-4-argon` |
+| Sonnet | Claude Sonnet 5.5 · `anthropic/claude-sonnet-5.5` | Claude Sonnet 5.5 · `anthropic/claude-sonnet-5.5` |
+| Opus | Claude Opus 5.5 · `anthropic/claude-opus-5.5` | Gemini 4 Carbon · `google/gemini-4-carbon` |
+| Fable | Claude Fable 5.2 · `anthropic/claude-fable-5.2` | Gemini 4 Argon · `google/gemini-4-argon` |
+| Haiku | Claude Haiku 5.5 · `anthropic/claude-haiku-5.5` | Claude Haiku 5.5 · `anthropic/claude-haiku-5.5` |
 
-3. 保存并启用这份配置，保持 CC Switch 和本地路由运行。若电脑使用 Windows 管理策略，按第 4 节同步生效的模型列表，确保包含四个角色。完全退出并重开 Claude Desktop，进入 **Code → New**，展开输入框右下角的模型菜单，核对四个显示名。
-4. 要核对实际调用，在菜单中选一个模型并发送短消息，然后按时间和令牌名称查找使用日志，确认记录中的模型 ID 与表格右栏一致。第 4 节已实测 Carbon；本节的四款组合是配置示例。每次测试按实际用量计费。[查看使用日志](https://holliday.win/usage-logs)
+3. 日常使用 Sonnet、Haiku、Carbon 和 Argon 时，启用「Claude 与 Gemini」。需要 Opus 或 Fable 时，切换到「全部 Claude」。每次切换后，保持 CC Switch 本地路由运行，完全退出并重开 Claude Desktop，再到 **Code → New** 查看模型菜单。若电脑使用 Windows 管理策略，按第 4 节同步当前配置的网关凭据和模型列表。
+4. 第 4 节实测的是 Sonnet 角色调用 Carbon。上表是保留原版 Sonnet 和 Haiku 的配置示例。要核对某个菜单项，选中它发送一条短消息，再按发送时间和令牌名称核对日志中的实际模型 ID。测试按用量计费。[查看使用日志](https://holliday.win/usage-logs)
