@@ -850,7 +850,7 @@
     "Claude CLI Header Passthrough": "Claude CLI 请求头透传",
     "Claude model providers": "Claude 模型渠道",
     "Claude only": "仅 Claude",
-    "Claude tokens will cost exactly what Anthropic charges for the same model and usage.": "上线后，同一 Claude 模型的同类用量将按 Anthropic 官方 API 单价计费。",
+    "Claude tokens will cost exactly what Anthropic charges for the same model and usage.": "本服务站接入的是Anthropic,Amazon Bedrock,Google Cloud Vertex AI提供的Claude模型,价格和官方保持一致,绝不在Token 上加价",
     "Clean": "无冲突",
     "Clean history logs": "清理历史日志",
     "Clean logs": "清理日志",
