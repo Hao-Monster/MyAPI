@@ -73,3 +73,20 @@ Windows 版 Claude Desktop 2.19675.1 可以通过 CC Switch 4.0.4 把 **Gemini 4
 **重启后仍只看到 Opus 和 Fable？** 本机的 Windows 管理策略优先于 CC Switch 写入的桌面配置。使用受管电脑时，请让管理员先留存原网关配置，再将生效策略中的网关地址、网关凭据和模型列表与 CC Switch 生成的桌面配置对齐。默认本地地址是 `http://127.0.0.1:15721/claude-desktop`。桌面端使用 CC Switch 生成的本地凭据，站内个人令牌填在 CC Switch 的上游服务商中。恢复直连时还原这三项并重启桌面端。[Windows 配置来源与优先级](https://claude.com/docs/third-party/claude-desktop/mdm)
 
 如果使用普通 OpenAI 兼容客户端，可直接填写上表的上游地址、个人令牌和请求模型。
+
+## 5. 在同一个模型菜单中显示 Claude 和 Gemini
+
+沿用第 4 节的 Ant-Claude 服务商配置，可以把两款 Claude 和两款 Gemini 放进同一个菜单。CC Switch 4.0.4 的桌面配置提供四个角色，每个角色可以指定一个菜单显示名和一个实际请求模型。这四个位置可按需分配；要展示本站全部六款模型，单份配置的位置不够。[CC Switch 4.0.4 角色配置](https://github.com/farion1231/cc-switch/blob/v4.0.4/src/components/providers/forms/ClaudeDesktopProviderForm.tsx#L193-L215)
+
+1. 在 Ant-Claude 编辑桌面端使用的个人令牌，进入「高级设置 → 模型限制」，勾选下表右栏的四个模型并保存。[打开 API 密钥页](https://holliday.win/keys)
+2. 在 CC Switch 的 **Claude Desktop** 面板编辑第 4 节的服务商，开启「需要模型映射」，逐行填写下表。四行都要填完整，留空的角色可能沿用其他行的模型。
+
+| CC Switch 角色 | 菜单显示名 | 实际请求模型 |
+| --- | --- | --- |
+| Sonnet | Gemini 4 Carbon | `google/gemini-4-carbon` |
+| Opus | Claude Opus 5.5 | `anthropic/claude-opus-5.5` |
+| Fable | Claude Fable 5.2 | `anthropic/claude-fable-5.2` |
+| Haiku | Gemini 4 Argon | `google/gemini-4-argon` |
+
+3. 保存并启用这份配置，保持 CC Switch 和本地路由运行。若电脑使用 Windows 管理策略，按第 4 节同步生效的模型列表，确保包含四个角色。完全退出并重开 Claude Desktop，进入 **Code → New**，展开输入框右下角的模型菜单，核对四个显示名。
+4. 要核对实际调用，在菜单中选一个模型并发送短消息，然后按时间和令牌名称查找使用日志，确认记录中的模型 ID 与表格右栏一致。第 4 节已实测 Carbon；本节的四款组合是配置示例。每次测试按实际用量计费。[查看使用日志](https://holliday.win/usage-logs)
