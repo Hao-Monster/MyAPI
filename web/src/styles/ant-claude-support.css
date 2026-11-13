@@ -1,0 +1,39 @@
+.ant-support-launcher {
+  position: fixed;
+  z-index: 40;
+  left: 0;
+  top: 0;
+  --right-limit: calc(100vw - 100% - max(1rem, env(safe-area-inset-right)));
+  --bottom-limit: calc(100dvh - 100% - max(.5rem, env(safe-area-inset-bottom)));
+  --initial-y: calc(100dvh - 100% - max(3.5rem, env(safe-area-inset-bottom)));
+  transform: translate(
+    clamp(max(.5rem, env(safe-area-inset-left)), var(--support-x, var(--right-limit)), var(--right-limit)),
+    clamp(max(.5rem, env(safe-area-inset-top)), var(--support-y, var(--initial-y)), var(--bottom-limit))
+  );
+  touch-action: none;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  max-width: calc(100vw - 2rem);
+  padding: .25rem .9rem .25rem .25rem;
+  border: 1px solid #dac9b7;
+  border-radius: 2rem;
+  background: #fffaf1;
+  color: #4b3024;
+  box-shadow: 0 3px 16px #39241922;
+  font-size: .875rem;
+  font-weight: 600;
+}
+.ant-support-launcher[hidden] { display: none; }
+.ant-support-launcher:hover { background: #fff4e3; }
+.ant-support-launcher:focus-visible { outline: 2px solid #a03f25; outline-offset: 3px; }
+.ant-support-launcher img { width: 42px; height: 42px; border-radius: 50%; }
+@media (prefers-reduced-motion: no-preference) {
+  .ant-support-launcher img { animation: ant-support-nudge 16s ease-in-out infinite; }
+}
+@keyframes ant-support-nudge {
+  0%, 94%, 98%, 100% { transform: rotate(0); }
+  95%, 97% { transform: rotate(-5deg); }
+  96% { transform: rotate(5deg); }
+}
