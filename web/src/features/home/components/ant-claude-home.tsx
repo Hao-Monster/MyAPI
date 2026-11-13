@@ -84,6 +84,18 @@ export function AntClaudeHome({
           </p>
         </section>
 
+        <section className='ant-notes'>
+          <h2>{t('Claude model providers')}</h2>
+          <ul>
+            <li>{t('Anthropic (official)')}</li>
+            <li>Amazon Bedrock</li>
+            <li>Google Cloud Vertex AI</li>
+          </ul>
+          <Link className='ant-text-link' to='/pricing'>
+            {t('View model catalog')} <ArrowRight aria-hidden size={15} />
+          </Link>
+        </section>
+
         <section id='pricing-policy' className='ant-policy'>
           <h2>{t('Our pricing policy')}</h2>
           <div className='ant-rates'>
@@ -162,17 +174,6 @@ export function AntClaudeHome({
         </section>
 
         <AntClaudeStory />
-        <section className='ant-notes'>
-          <h2>{t('Claude model providers')}</h2>
-          <ul>
-            <li>{t('Anthropic (official)')}</li>
-            <li>Amazon Bedrock</li>
-            <li>Google Cloud Vertex AI</li>
-          </ul>
-          <Link className='ant-text-link' to='/pricing'>
-            {t('View model catalog')} <ArrowRight aria-hidden size={15} />
-          </Link>
-        </section>
       </div>
     </main>
   )
