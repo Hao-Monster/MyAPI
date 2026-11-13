@@ -47,12 +47,29 @@
 
 停用这台设备时，在站内禁用它的专用令牌即可。更换令牌时，也要在客户端的网关设置中更新密钥并重新启动。
 
-## 4. Windows 客户端能选 Gemini 4 Carbon 吗？
+## 4. 在 Claude Desktop 的 Code 页选择 Gemini 4 Carbon
 
-在 Windows 版 Claude Desktop **2.19675.1** 的 Gateway 模式下，Code 页无法直接选择 `google/gemini-4-carbon`。实测把这个完整 ID 加到 `inferenceModels`，保留 Opus 和 Fable，然后完全退出并重新启动客户端。展开新会话输入框右下角的模型菜单后，仍然只有 Opus 和 Fable。测试停在选择模型这一步，没有发出 Carbon 对话请求。
+Windows 版 Claude Desktop 2.19675.1 可以通过 CC Switch 4.0.4 把 **Gemini 4 Carbon** 加入模型菜单。直接把 `google/gemini-4-carbon` 填进 Claude Desktop 的模型列表时，本机菜单仍只显示 Opus 和 Fable。使用 CC Switch 时，桌面端识别 Sonnet 角色，由本地路由将请求映射到 Carbon。[CC Switch 桌面端配置说明](https://github.com/farion1231/cc-switch/blob/v4.0.4/docs/user-manual/en/2-providers/2.6-claude-desktop.md)
 
-如果你遇到同样的情况，先看模型菜单。模型没有出现时，扩大令牌权限不能让它出现在菜单里。如果模型可以选，但发送消息后提示无权调用，再到「API 密钥 → 编辑 → 高级设置 → 模型限制」核对该令牌允许的模型。
+1. 打开 Ant-Claude 的「API 密钥」，编辑自己的桌面端令牌，在「高级设置 → 模型限制」中勾选 `google/gemini-4-carbon` 并保存。[打开 API 密钥页](https://holliday.win/keys)
+2. 在 CC Switch 左侧选择 **Claude Desktop**，点击 **+** 添加自定义服务商，按下表填写。
 
-要在 Ant-Claude 使用 Carbon，可在支持 OpenAI 兼容接口的客户端中选择自定义服务商，Base URL 填 `https://holliday.win/v1`，模型 ID 填 `google/gemini-4-carbon`，并使用已放行 Carbon 的个人 API 密钥。发送一条短消息后，在[使用日志](https://holliday.win/usage-logs)核对模型名。这套填写方式用于 OpenAI 兼容客户端；Claude Desktop 的 Gateway 地址仍按第 2 节填写。
+| CC Switch 设置 | 填写内容 |
+| --- | --- |
+| 接口格式 | OpenAI Chat Completions |
+| 上游地址 | `https://holliday.win/v1` |
+| API 密钥 | 已获准调用 Carbon 的 Ant-Claude 个人令牌 |
+| 需要模型映射 | 开启 |
+| 桌面角色 | Sonnet |
+| 菜单显示名 | Gemini 4 Carbon |
+| 请求模型 | `google/gemini-4-carbon` |
 
-升级 Claude Desktop 后，可以用同一方法复测。只有在客户端能选中 Carbon、收到回复，且站内同一请求的日志显示 `google/gemini-4-carbon` 时，才算验证了该版本的桌面接入。
+3. 保存前检查其他角色的请求模型。CC Switch 可能用同一模型补全空白角色。若希望保留 Opus 或 Fable，分别填入第 1 节的完整模型 ID，并确认令牌有对应权限。
+4. 启用服务商，开启 **Claude Desktop 本地路由**。如果显示未运行，点击「重试」。保持 CC Switch 运行，完全退出并重开 Claude Desktop。
+5. 在 **Code → New** 选择专用空文件夹。在模型菜单选 **Gemini 4 Carbon**，发送「只回复 OK」。打开站内使用日志，按发送时间和令牌名称核对模型 ID `google/gemini-4-carbon`。[查看使用日志](https://holliday.win/usage-logs)
+
+**本次实测**　在专用空文件夹中选择 Gemini 4 Carbon，发送「只回复 OK，不使用任何工具。」后，桌面端回复了 `OK`。站内同一令牌在这次对话中产生两笔 `google/gemini-4-carbon` 记录：主请求为流式，输入 51,650、输出 5 个 Token，费用 $0.103350；另一笔费用 $0.002078，合计 **$0.105428**。Code 页会随短消息发送额外上下文，每次费用取决于实际用量。
+
+**重启后仍只看到 Opus 和 Fable？** 本机的 Windows 管理策略优先于 CC Switch 写入的桌面配置。使用受管电脑时，请让管理员先留存原网关配置，再将生效策略中的网关地址、网关凭据和模型列表与 CC Switch 生成的桌面配置对齐。默认本地地址是 `http://127.0.0.1:15721/claude-desktop`。桌面端使用 CC Switch 生成的本地凭据，站内个人令牌填在 CC Switch 的上游服务商中。恢复直连时还原这三项并重启桌面端。[Windows 配置来源与优先级](https://claude.com/docs/third-party/claude-desktop/mdm)
+
+如果使用普通 OpenAI 兼容客户端，可直接填写上表的上游地址、个人令牌和请求模型。
