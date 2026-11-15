@@ -11,7 +11,7 @@
 | Claude Opus 5.5 | `anthropic/claude-opus-5.5` |
 | Claude Fable 5.2 | `anthropic/claude-fable-5.2` |
 
-令牌额度是这台设备最多可以使用的金额。账户本身也需要有可用余额。每位使用者应从自己的 Ant-Claude 账户创建令牌，站长的 OpenRouter 上游密钥只保存在服务器上。
+令牌额度是这台设备最多可以使用的金额。账户本身也需要有可用余额。每位使用者应从自己的 Ant-Claude 账户创建令牌。
 
 ## 2. 配置桌面客户端
 
