@@ -75,25 +75,30 @@ with urlopen(url, timeout=10) as response:
         raise RuntimeError("Setup incomplete, refusing to publish")
 PY
 
+if command -v ufw >/dev/null && LC_ALL=C ufw status | grep -Fxq 'Status: active'; then
+  ufw allow 80/tcp
+  ufw allow 443/tcp
+fi
+
 proxy=new-api-tokyo-https
 caddy_image='caddy:2-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9'
 # Keep certificates across releases. Host networking reaches the loopback-only app.
 cat > /var/lib/new-api-tokyo/Caddyfile <<'CADDY'
 {
-    auto_https disable_redirects
     servers {
         protocols h1 h2
+        trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+        client_ip_headers CF-Connecting-IP X-Forwarded-For
     }
 }
 holliday.win {
-    tls {
-        issuer acme {
-            disable_http_challenge
-        }
-    }
     @defaultIcons path /logo.png /favicon.ico
     redir @defaultIcons /ant-claude-swords-icon.png 302
-    reverse_proxy 127.0.0.1:3000
+    reverse_proxy 127.0.0.1:3000 {
+        header_up X-Forwarded-For {client_ip}
+        header_up X-Real-IP {client_ip}
+        flush_interval -1
+    }
 }
 CADDY
 if ! docker container inspect "$proxy" >/dev/null 2>&1; then
@@ -107,7 +112,3 @@ else
   docker exec "$proxy" caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 fi
 docker exec "$proxy" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
-if ss -Hltn 'sport = :80' | grep -q .; then
-  echo 'Unexpected HTTP listener after enabling HTTPS-only mode' >&2
-  exit 1
-fi
