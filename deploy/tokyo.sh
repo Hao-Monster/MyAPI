@@ -82,33 +82,79 @@ fi
 
 proxy=new-api-tokyo-https
 caddy_image='caddy:2-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9'
+# Cloudflare edge ranges (https://www.cloudflare.com/ips/). holliday.win only accepts
+# connections from these addresses; api.holliday.win is DNS-only and accepts clients directly.
+cloudflare_ranges='173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32'
 # Keep certificates across releases. Host networking reaches the loopback-only app.
-cat > /var/lib/new-api-tokyo/Caddyfile <<'CADDY'
+# Write and validate a candidate first so a bad config never replaces the live file,
+# which the running proxy reloads and a restarted container would boot from.
+# The heredoc is unquoted only to expand $cloudflare_ranges; do not add other $ or backticks.
+caddyfile=/var/lib/new-api-tokyo/Caddyfile
+cat > "$caddyfile.new" <<CADDY
 {
     servers {
         protocols h1 h2
-        trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+        trusted_proxies static $cloudflare_ranges
         client_ip_headers CF-Connecting-IP X-Forwarded-For
     }
 }
 holliday.win {
-    @defaultIcons path /logo.png /favicon.ico
-    redir @defaultIcons /ant-claude-swords-icon.png 302
-    reverse_proxy 127.0.0.1:3000 {
-        header_up X-Forwarded-For {client_ip}
-        header_up X-Real-IP {client_ip}
-        flush_interval -1
+    @notCloudflare not remote_ip $cloudflare_ranges
+    handle @notCloudflare {
+        abort
+    }
+    handle {
+        @defaultIcons path /logo.png /favicon.ico
+        redir @defaultIcons /ant-claude-swords-icon.png 302
+        reverse_proxy 127.0.0.1:3000 {
+            header_up X-Forwarded-For {client_ip}
+            header_up X-Real-IP {client_ip}
+            flush_interval -1
+        }
+    }
+}
+api.holliday.win {
+    tls {
+        issuer acme {
+            disable_http_challenge
+        }
+    }
+    @relay {
+        path /v1 /v1/* /v1beta /v1beta/* /dashboard/billing/* /mj/* /*/mj/*/* /*/mj/*/*/* /suno/* /kling/* /jimeng /jimeng/* /api/status /api/uptime/status /api/usage/token /api/usage/token/ /api/log/token /api/pricing /api/ratio_config
+        not path /api/mj /api/mj/*
+    }
+    handle @relay {
+        reverse_proxy 127.0.0.1:3000 {
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+            header_up -CF-Connecting-IP
+            flush_interval -1
+        }
+    }
+    @browserRoot {
+        method GET HEAD
+        path /
+    }
+    handle @browserRoot {
+        redir https://holliday.win/ 302
+    }
+    handle {
+        respond 404
     }
 }
 CADDY
+docker run --rm --network none -v "$caddyfile.new:/etc/caddy/Caddyfile:ro" "$caddy_image" \
+  caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+# Overwrite in place: the single-file bind mount follows the inode, so mv would hide the update.
+cat "$caddyfile.new" > "$caddyfile"
+rm -f -- "$caddyfile.new"
 if ! docker container inspect "$proxy" >/dev/null 2>&1; then
   docker run -d --name "$proxy" --restart unless-stopped --network host \
     --label io.myapi.deployment=tokyo --log-opt max-size=5m --log-opt max-file=2 \
-    -v /var/lib/new-api-tokyo/Caddyfile:/etc/caddy/Caddyfile:ro \
+    -v "$caddyfile:/etc/caddy/Caddyfile:ro" \
     -v new-api-tokyo-certs:/data -v new-api-tokyo-caddy-config:/config "$caddy_image"
 else
   test "$(docker inspect --format '{{ index .Config.Labels "io.myapi.deployment" }}' "$proxy")" = tokyo
   docker start "$proxy"
   docker exec "$proxy" caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 fi
-docker exec "$proxy" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile

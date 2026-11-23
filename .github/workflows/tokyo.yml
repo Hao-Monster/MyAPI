@@ -95,4 +95,11 @@ jobs:
           fi
           # Keep the short-lived registry token off the command line and the host filesystem.
           { printf 'export GH_TOKEN=%q\n' "$GH_TOKEN"; cat deploy/tokyo.sh; } | ssh_new "sudo -n bash -se -- '$IMAGE' '$GITHUB_SHA' '$GITHUB_ACTOR'"
-          curl -fsS --retry 5 --retry-all-errors --max-time 10 --resolve "holliday.win:443:$ip" https://holliday.win/api/status | jq -e --arg rev "$GITHUB_SHA" '.success and .data.version == $rev'
+          # holliday.win is reachable only through Cloudflare; verify the public path end to end.
+          curl -fsS --retry 10 --retry-delay 3 --retry-all-errors --max-time 10 https://holliday.win/api/status | jq -e --arg rev "$GITHUB_SHA" '.success and .data.version == $rev'
+          # Direct origin access with the main-site host must be refused (Cloudflare-only gate).
+          if curl -fsS --max-time 10 --resolve "holliday.win:443:$ip" https://holliday.win/api/status >/dev/null 2>&1; then
+            echo 'holliday.win answered a non-Cloudflare client at the origin' >&2
+            exit 1
+          fi
+          curl -fsS --retry 30 --retry-delay 2 --retry-all-errors --max-time 10 --resolve "api.holliday.win:443:$ip" https://api.holliday.win/api/status | jq -e --arg rev "$GITHUB_SHA" '.success and .data.version == $rev'
