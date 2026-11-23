@@ -1,0 +1,71 @@
+name: Cloudflare Origin Guard
+
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/tokyo.sh'
+      - 'deploy/cloudflare-aop/**'
+      - '.github/workflows/cloudflare-origin-guard.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    if: github.repository == 'Hao-Monster/MyAPI'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+
+      - name: Check Cloudflare IP range drift
+        run: |
+          set -euo pipefail
+          work=$(mktemp -d)
+          trap 'rm -r -- "$work"' EXIT
+
+          ranges_line=$(sed -n "s/^cloudflare_ranges='\([^']*\)'$/\1/p" deploy/tokyo.sh)
+          test -n "$ranges_line"
+          printf '%s\n' "$ranges_line" | tr ' ' '\n' | sed '/^$/d' | sort > "$work/repo.cidrs"
+          test -s "$work/repo.cidrs"
+
+          curl -fsS --retry 5 --retry-all-errors --max-time 15 https://api.cloudflare.com/client/v4/ips \
+            | jq -er 'if .success then (.result.ipv4_cidrs + .result.ipv6_cidrs)[] else error("cloudflare api failure") end' \
+            | sort > "$work/live.cidrs"
+          test -s "$work/live.cidrs"
+
+          if ! diff -u "$work/repo.cidrs" "$work/live.cidrs"; then
+            echo 'Cloudflare IP ranges drifted; update cloudflare_ranges in deploy/tokyo.sh.' >&2
+            exit 1
+          fi
+
+      - name: Check AOP certificates validity and chain
+        run: |
+          set -euo pipefail
+          for crt in deploy/cloudflare-aop/ca.crt deploy/cloudflare-aop/client.crt; do
+            if ! openssl x509 -checkend 5184000 -noout -in "$crt"; then
+              echo "$crt expires within 60 days (or is invalid); rotate the AOP certificate." >&2
+              exit 1
+            fi
+          done
+          openssl verify -purpose sslclient -CAfile deploy/cloudflare-aop/ca.crt deploy/cloudflare-aop/client.crt
+
+      - name: Check inline CA DER matches ca.crt when configured
+        run: |
+          set -euo pipefail
+          if grep -q '^aop_ca_der=' deploy/tokyo.sh; then
+            repo_der=$(sed -n "s/^aop_ca_der='\([^']*\)'$/\1/p" deploy/tokyo.sh)
+            test -n "$repo_der"
+            cert_der=$(openssl x509 -in deploy/cloudflare-aop/ca.crt -outform DER | base64 -w0)
+            if [[ $repo_der != "$cert_der" ]]; then
+              echo 'aop_ca_der in deploy/tokyo.sh does not match deploy/cloudflare-aop/ca.crt.' >&2
+              exit 1
+            fi
+          else
+            echo 'aop_ca_der is not configured in deploy/tokyo.sh yet; skipping parity check.'
+          fi

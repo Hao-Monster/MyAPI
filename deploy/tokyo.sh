@@ -94,16 +94,23 @@ cat > "$caddyfile.new" <<CADDY
 {
     servers {
         protocols h1 h2
+        strict_sni_host on
         trusted_proxies static $cloudflare_ranges
         client_ip_headers CF-Connecting-IP X-Forwarded-For
     }
 }
 holliday.win {
+    tls {
+        client_auth {
+            mode request
+        }
+    }
     @notCloudflare not remote_ip $cloudflare_ranges
     handle @notCloudflare {
         abort
     }
     handle {
+        header X-Origin-Pull-Fingerprint {http.request.tls.client.fingerprint}
         @defaultIcons path /logo.png /favicon.ico
         redir @defaultIcons /ant-claude-swords-icon.png 302
         reverse_proxy 127.0.0.1:3000 {
