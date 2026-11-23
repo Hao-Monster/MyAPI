@@ -97,13 +97,13 @@ jobs:
           { printf 'export GH_TOKEN=%q\n' "$GH_TOKEN"; cat deploy/tokyo.sh; } | ssh_new "sudo -n bash -se -- '$IMAGE' '$GITHUB_SHA' '$GITHUB_ACTOR'"
           # holliday.win is reachable only through Cloudflare; verify the public path end to end.
           curl -fsS --retry 10 --retry-delay 3 --retry-all-errors --max-time 10 https://holliday.win/api/status | jq -e --arg rev "$GITHUB_SHA" '.success and .data.version == $rev'
-          # Direct origin access with the main-site host must be refused (Cloudflare-only gate).
+          # Direct origin access with the main-site host must be refused (requires the Cloudflare origin-pull client certificate).
           if curl -fsS --max-time 10 --resolve "holliday.win:443:$ip" https://holliday.win/api/status >/dev/null 2>&1; then
-            echo 'holliday.win answered a non-Cloudflare client at the origin' >&2
+            echo 'holliday.win answered an unauthenticated client at the origin' >&2
             exit 1
           fi
           curl -fsS --retry 30 --retry-delay 2 --retry-all-errors --max-time 10 --resolve "api.holliday.win:443:$ip" https://api.holliday.win/api/status | jq -e --arg rev "$GITHUB_SHA" '.success and .data.version == $rev'
-          # Domain fronting (benign SNI + main-site Host) must be rejected with 421 by strict_sni_host.
+          # Host/SNI mismatch must be rejected with 421 by strict_sni_host.
           fronting_code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --resolve "api.holliday.win:443:$ip" -H 'Host: holliday.win' https://api.holliday.win/api/status)
           if [[ $fronting_code != 421 ]]; then
             echo "Expected 421 Misdirected Request for Host/SNI mismatch, got $fronting_code" >&2
